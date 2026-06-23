@@ -2,321 +2,209 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Script Factory · Panelas Polishop</title>
 <style>
-/* PASSWORD SCREEN */
-#pwScreen{
-  position:fixed;inset:0;z-index:9999;
-  background:var(--navy,#1A2340);
-  display:flex;align-items:center;justify-content:center;
+:root{
+  --red:#C0392B;--red-dark:#922B21;--red-light:#FADBD8;
+  --navy:#1A2340;--navy-mid:#2D3A55;
+  --gray:#F2F4F7;--gray-mid:#DDE1EA;--gray-dark:#B0B8C8;
+  --text:#1A2340;--soft:#5A6479;--white:#fff;
+  --green:#1A6B4A;--green-light:#D4EDDA;
+  --amber:#B56A00;--blue:#2255A4;
+  --r:10px;
 }
-.pw-box{
-  background:#fff;border-radius:14px;padding:40px 36px;
-  width:340px;text-align:center;box-shadow:0 20px 60px #0008;
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+/* iOS fix: elementos clicáveis precisam de cursor:pointer para disparar onclick */
+.step-head,.opt,.p-card,.prod-card,.diff-item,.ass-card,.r-tag,.cta-card,.btn-gen,.btn-copy,.btn-export{
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-user-select:none;
+  user-select:none;
 }
-.pw-logo{background:#C0392B;color:#fff;font-size:11px;font-weight:800;letter-spacing:1.5px;padding:5px 10px;border-radius:4px;text-transform:uppercase;display:inline-block;margin-bottom:18px;}
-.pw-box h2{font-size:18px;font-weight:700;color:#1A2340;margin-bottom:6px;}
-.pw-box p{font-size:12.5px;color:#5A6479;margin-bottom:22px;line-height:1.5;}
-.pw-input{
-  width:100%;border:1.5px solid #DDE1EA;border-radius:8px;
-  padding:11px 14px;font-size:14px;font-family:inherit;
-  color:#1A2340;outline:none;margin-bottom:12px;
-  letter-spacing:2px;text-align:center;
-}
-.pw-input:focus{border-color:#C0392B;}
-.pw-btn{
-  width:100%;background:#C0392B;color:#fff;border:none;
-  border-radius:8px;padding:12px;font-size:14px;font-weight:700;
-  cursor:pointer;transition:background .15s;
-}
-.pw-btn:hover{background:#922B21;}
-.pw-error{font-size:12px;color:#C0392B;margin-top:8px;display:none;}
-.pw-error.on{display:block;}</style>
-<style>
-:root {
-  --red:#C0392B; --red-dark:#922B21; --red-light:#FADBD8;
-  --navy:#1A2340; --navy-mid:#2D3A55; --navy-light:#3D4F6E;
-  --gray:#F2F4F7; --gray-mid:#DDE1EA; --gray-dark:#B0B8C8;
-  --text:#1A2340; --text-soft:#5A6479; --white:#FFFFFF;
-  --radius:10px;
-  --green:#1A6B4A; --green-light:#D4EDDA;
-  --amber:#B56A00; --amber-light:#FEF3E2;
-  --blue:#2255A4; --blue-light:#E8EFFE;
-  --purple:#7B4B94; --purple-light:#F3EBF8;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--gray);color:var(--text);min-height:100vh;}
 
-/* HEADER */
-header{
-  background:var(--navy);padding:16px 28px;
-  display:flex;align-items:center;gap:14px;
-  border-bottom:3px solid var(--red);position:sticky;top:0;z-index:100;
-}
-header .logo{background:var(--red);color:#fff;font-size:10px;font-weight:800;letter-spacing:1.5px;padding:5px 9px;border-radius:4px;text-transform:uppercase;}
-header h1{color:#fff;font-size:17px;font-weight:600;}
-header .pill{background:#0E1728;color:#7B8BAF;font-size:11px;padding:4px 10px;border-radius:20px;margin-left:auto;}
+/* ── HEADER */
+header{background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--red);position:sticky;top:0;z-index:200;}
+.logo{background:var(--red);color:#fff;font-size:9px;font-weight:800;letter-spacing:1.5px;padding:4px 8px;border-radius:4px;text-transform:uppercase;white-space:nowrap;}
+header h1{color:#fff;font-size:15px;font-weight:600;flex:1;}
+.pill-demo{background:var(--amber);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
 
-/* LAYOUT */
-.layout{display:grid;grid-template-columns:360px 1fr;min-height:calc(100vh - 59px);}
+/* ── PÁGINA = coluna única, scroll vertical */
+.page{display:flex;flex-direction:column;max-width:900px;margin:0 auto;padding:16px;}
 
-/* SIDEBAR */
-.sidebar{background:var(--white);border-right:1px solid var(--gray-mid);padding:20px;display:flex;flex-direction:column;gap:0;overflow-y:auto;}
-
-/* STEP BLOCK */
-.step{border:1.5px solid var(--gray-mid);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
+/* ── STEPS */
+.step{background:var(--white);border:1.5px solid var(--gray-mid);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
 .step.active{border-color:var(--red);}
 .step.done{border-color:#A8D8B9;}
-.step-head{
-  padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;
-  background:var(--white);transition:background .15s;user-select:none;
-}
-.step-head:hover{background:#fafafa;}
+.step-head{padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;min-height:52px;}
 .step.active .step-head{background:#FFF5F5;}
 .step.done .step-head{background:#F0FAF4;}
-.step-num{
-  width:22px;height:22px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:700;color:#fff;
-  background:var(--gray-dark);flex-shrink:0;transition:background .2s;
-}
+.step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:var(--gray-dark);flex-shrink:0;}
 .step.active .step-num{background:var(--red);}
 .step.done .step-num{background:var(--green);}
-.step-title{font-size:12.5px;font-weight:600;flex:1;}
-.step-summary{font-size:11px;color:var(--text-soft);margin-left:auto;max-width:140px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.step-chevron{font-size:10px;color:var(--gray-dark);transition:transform .2s;}
-.step.open .step-chevron{transform:rotate(180deg);}
-.step-body{display:none;padding:12px 14px 14px;border-top:1px solid var(--gray-mid);background:#FAFBFC;}
+.step-title{font-size:14px;font-weight:600;flex:1;}
+.step-sum{font-size:11px;color:var(--soft);max-width:120px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chevron{font-size:11px;color:var(--gray-dark);margin-left:6px;transition:transform .2s;flex-shrink:0;}
+.step.open .chevron{transform:rotate(180deg);}
+.step-body{display:none;padding:14px 16px 16px;border-top:1px solid var(--gray-mid);background:#FAFBFC;}
 .step.open .step-body{display:block;}
 
-/* OPTION PILLS / CARDS */
-.opt-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
-.opt{
-  border:1.5px solid var(--gray-mid);border-radius:8px;
-  padding:7px 12px;cursor:pointer;font-size:12px;font-weight:500;
-  transition:all .15s;background:var(--white);
-}
-.opt:hover{border-color:var(--red);background:#fff5f5;}
-.opt.active{border-color:var(--red);background:var(--red-light);font-weight:600;}
+/* ── OPÇÕES GENÉRICAS */
+.opt-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.opt{border:1.5px solid var(--gray-mid);border-radius:8px;padding:10px 14px;cursor:pointer;font-size:13px;font-weight:500;background:var(--white);transition:all .15s;}
+.opt:hover,.opt:active{border-color:var(--red);background:var(--red-light);}
+.opt.active{border-color:var(--red);background:var(--red-light);font-weight:700;}
 
-/* Persona cards */
-.persona-list{display:flex;flex-direction:column;gap:5px;}
-.persona-card{
-  border:1.5px solid var(--gray-mid);border-radius:var(--radius);
-  padding:8px 11px;cursor:pointer;transition:all .15s;
-  display:flex;align-items:center;gap:9px;background:var(--white);
-}
-.persona-card:hover{border-color:var(--red);background:#fff5f5;}
-.persona-card.active{border-color:var(--red);background:var(--red-light);}
-.p-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;flex-shrink:0;}
+/* ── PERSONAS */
+.p-list{display:flex;flex-direction:column;gap:6px;}
+.p-card{border:1.5px solid var(--gray-mid);border-radius:var(--r);padding:11px 13px;cursor:pointer;display:flex;align-items:center;gap:10px;background:var(--white);transition:all .15s;}
+.p-card:hover,.p-card:active{border-color:var(--red);background:var(--red-light);}
+.p-card.active{border-color:var(--red);background:var(--red-light);}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;}
 .p-info{flex:1;min-width:0;}
-.p-name{font-size:12px;font-weight:600;}
-.p-demo{font-size:10px;color:var(--text-soft);}
-.p-tag{font-size:9px;font-weight:600;background:var(--navy-mid);color:#A8B4CC;padding:2px 6px;border-radius:20px;white-space:nowrap;}
+.p-name{font-size:13px;font-weight:600;}
+.p-demo{font-size:11px;color:var(--soft);margin-top:1px;}
+.p-tag{font-size:9px;font-weight:600;background:var(--navy-mid);color:#A8B4CC;padding:3px 7px;border-radius:20px;white-space:nowrap;}
 
-/* Produto */
-.produto-list{display:flex;flex-direction:column;gap:5px;}
-.produto-card{
-  border:1.5px solid var(--gray-mid);border-radius:var(--radius);
-  padding:9px 12px;cursor:pointer;font-size:12.5px;font-weight:500;
-  transition:all .15s;display:flex;align-items:center;gap:9px;background:var(--white);
-}
-.produto-card:hover{border-color:var(--red);background:#fff5f5;}
-.produto-card.active{border-color:var(--red);background:var(--red-light);font-weight:600;}
-.p-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.p-desc{font-size:10px;color:var(--text-soft);margin-top:1px;}
+/* ── PRODUTOS */
+.prod-list{display:flex;flex-direction:column;gap:6px;}
+.prod-card{border:1.5px solid var(--gray-mid);border-radius:var(--r);padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;background:var(--white);font-size:13px;font-weight:500;transition:all .15s;}
+.prod-card:hover,.prod-card:active{border-color:var(--red);background:var(--red-light);}
+.prod-card.active{border-color:var(--red);background:var(--red-light);font-weight:700;}
+.dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
 
-/* Diferenciais */
-.diff-list{display:flex;flex-direction:column;gap:4px;}
-.diff-item{
-  display:flex;align-items:flex-start;gap:8px;padding:7px 10px;
-  border-radius:8px;border:1.5px solid var(--gray-mid);cursor:pointer;
-  transition:all .15s;font-size:11.5px;line-height:1.35;background:var(--white);
-}
-.diff-item:hover{border-color:var(--red);background:#fff5f5;}
-.diff-item.active{border-color:var(--red);background:var(--red-light);font-weight:500;}
+/* ── DIFERENCIAIS */
+.diff-list{display:flex;flex-direction:column;gap:5px;}
+.diff-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:8px;border:1.5px solid var(--gray-mid);cursor:pointer;font-size:13px;background:var(--white);transition:all .15s;}
+.diff-item:hover,.diff-item:active{border-color:var(--red);background:var(--red-light);}
+.diff-item.active{border-color:var(--red);background:var(--red-light);font-weight:600;}
 .diff-item.off{opacity:.3;pointer-events:none;}
-.d-check{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--gray-mid);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s;}
-.diff-item.active .d-check{background:var(--red);border-color:var(--red);color:#fff;}
-.diff-note{font-size:10px;color:var(--text-soft);text-align:right;margin-top:4px;}
+.d-chk{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--gray-mid);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.diff-item.active .d-chk{background:var(--red);border-color:var(--red);color:#fff;}
+.diff-note{font-size:11px;color:var(--soft);text-align:right;margin-top:6px;}
 
-/* Assunto cards */
-.assunto-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.assunto-card{
-  border:1.5px solid var(--gray-mid);border-radius:var(--radius);
-  padding:10px;cursor:pointer;transition:all .15s;background:var(--white);text-align:center;
-}
-.assunto-card:hover{border-color:var(--red);background:#fff5f5;}
-.assunto-card.active{border-color:var(--red);background:var(--red-light);}
-.assunto-icon{font-size:22px;margin-bottom:4px;}
-.assunto-label{font-size:11.5px;font-weight:600;}
-.assunto-sub{font-size:9.5px;color:var(--text-soft);margin-top:2px;}
-
-/* Receita input */
-.receita-block{margin-top:10px;}
-.r-suggestions{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
-.r-tag{border:1.5px solid var(--gray-mid);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;background:var(--white);}
-.r-tag:hover{border-color:var(--green);background:var(--green-light);}
-.r-tag.active{border-color:var(--green);background:var(--green-light);font-weight:600;color:var(--green);}
-.r-label{font-size:10px;color:var(--text-soft);margin-bottom:5px;}
-.r-input{width:100%;border:1.5px solid var(--gray-mid);border-radius:8px;padding:8px 11px;font-size:12px;font-family:inherit;color:var(--text);outline:none;resize:none;}
+/* ── ASSUNTO */
+.ass-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ass-card{border:1.5px solid var(--gray-mid);border-radius:var(--r);padding:14px 10px;cursor:pointer;background:var(--white);text-align:center;transition:all .15s;}
+.ass-card:hover,.ass-card:active{border-color:var(--red);background:var(--red-light);}
+.ass-card.active{border-color:var(--red);background:var(--red-light);}
+.ass-icon{font-size:26px;margin-bottom:6px;}
+.ass-label{font-size:12px;font-weight:600;}
+.ass-sub{font-size:10px;color:var(--soft);margin-top:2px;}
+.r-suggs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 8px;}
+.r-tag{border:1.5px solid var(--gray-mid);border-radius:20px;padding:7px 13px;font-size:12px;cursor:pointer;background:var(--white);transition:all .15s;}
+.r-tag:hover,.r-tag:active{border-color:var(--green);background:var(--green-light);}
+.r-tag.active{border-color:var(--green);background:var(--green-light);font-weight:700;color:var(--green);}
+.r-label{font-size:11px;color:var(--soft);margin-bottom:5px;}
+.r-input{width:100%;border:1.5px solid var(--gray-mid);border-radius:8px;padding:11px 13px;font-size:13px;font-family:inherit;outline:none;resize:none;}
 .r-input:focus{border-color:var(--green);}
 
-/* Sazonal input */
-.sazonal-block{margin-top:10px;}
-.s-input{width:100%;border:1.5px solid var(--gray-mid);border-radius:8px;padding:8px 11px;font-size:12px;font-family:inherit;color:var(--text);outline:none;}
-.s-input:focus{border-color:var(--amber);}
-
-/* CTA cards */
-.cta-list{display:flex;flex-direction:column;gap:6px;}
-.cta-card{
-  border:1.5px solid var(--gray-mid);border-radius:var(--radius);
-  padding:10px 12px;cursor:pointer;transition:all .15s;background:var(--white);
-}
-.cta-card:hover{border-color:var(--red);background:#fff5f5;}
+/* ── CTA */
+.cta-list{display:flex;flex-direction:column;gap:8px;}
+.cta-card{border:1.5px solid var(--gray-mid);border-radius:var(--r);padding:12px 14px;cursor:pointer;background:var(--white);transition:all .15s;}
+.cta-card:hover,.cta-card:active{border-color:var(--red);background:var(--red-light);}
 .cta-card.active{border-color:var(--red);background:var(--red-light);}
-.cta-top{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
-.cta-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
-.cta-badge.organico{background:#D4EDDA;color:var(--green);}
+.cta-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.cta-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;}
+.cta-badge.org{background:#D4EDDA;color:var(--green);}
 .cta-badge.pago{background:#E8EFFE;color:var(--blue);}
-.cta-text{font-size:12px;font-weight:600;}
-.cta-sub{font-size:10.5px;color:var(--text-soft);}
+.cta-text{font-size:13px;font-weight:600;}
+.cta-sub{font-size:11px;color:var(--soft);margin-top:2px;}
 
-/* GENERATE BTN */
-.btn-gen{
-  background:var(--red);color:#fff;border:none;border-radius:var(--radius);
-  padding:13px;font-size:14px;font-weight:700;cursor:pointer;
-  letter-spacing:.3px;transition:background .15s;width:100%;margin-top:4px;
-}
+/* ── BOTÃO GERAR */
+.btn-gen{background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:16px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-top:6px;transition:background .15s;}
 .btn-gen:hover{background:var(--red-dark);}
 .btn-gen:disabled{background:#ccc;cursor:not-allowed;}
 
-/* MAIN */
-.main{padding:28px 32px;overflow-y:auto;}
-
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:12px;color:var(--text-soft);text-align:center;padding:40px;}
-.empty-state .icon{font-size:52px;}
-.empty-state h2{font-size:18px;font-weight:600;color:var(--text);}
-.empty-state p{font-size:13px;line-height:1.65;max-width:400px;}
-
-/* Loading */
-.loading-box{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:16px;text-align:center;}
-.loading-box.on{display:flex;}
-.spinner{width:40px;height:40px;border:3px solid var(--gray-mid);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
+/* ── LOADING */
+.loading{display:none;flex-direction:column;align-items:center;gap:14px;padding:40px 20px;text-align:center;}
+.loading.on{display:flex;}
+.spinner{width:38px;height:38px;border:3px solid var(--gray-mid);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.loading-msg{font-size:14px;color:var(--text-soft);font-weight:500;}
+.loading p{font-size:13px;color:var(--soft);}
 
-.error-box{background:#FDEDEC;border:1px solid var(--red);border-radius:var(--radius);padding:13px 15px;color:var(--red-dark);font-size:13px;display:none;margin-bottom:16px;}
-.error-box.on{display:block;}
-
-/* OUTPUT */
+/* ── OUTPUT */
 .output{display:none;}
 .output.on{display:block;}
+.out-badge{display:inline-flex;align-items:center;padding:5px 13px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:12px;border:1px solid;}
+.out-title{font-size:20px;font-weight:700;margin-bottom:6px;}
+.out-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.m-tag{background:var(--navy-mid);color:#A8B4CC;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;}
+.m-extra{background:#E8F5EE;color:var(--green);padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700;border:1px solid #A8D8B9;}
+.out-btns{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.btn-copy{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;flex:1;}
+.btn-export{background:var(--green);color:#fff;border:none;border-radius:8px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;flex:1;}
 
-.out-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:14px;border:1px solid;}
+/* ── CENAS */
+.scenes{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+.s-card{background:var(--white);border:1px solid var(--gray-mid);border-radius:var(--r);overflow:hidden;}
+.s-head{color:#fff;padding:10px 14px;display:flex;align-items:center;gap:9px;font-size:11px;font-weight:600;letter-spacing:.3px;}
+.s-num{background:var(--red);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.s-time{margin-left:auto;color:#aaa;font-size:10px;font-weight:400;}
+.s-body{padding:13px 14px;font-size:13px;line-height:1.7;color:var(--text);}
+.fala-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:5px;}
+.seed-block{margin-top:11px;background:#EEF2FF;border-left:3px solid #4F6BED;border-radius:0 6px 6px 0;padding:9px 12px;}
+.seed-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#4F6BED;margin-bottom:3px;}
+.seed-txt{font-size:12px;color:#2D3A6A;line-height:1.6;font-style:italic;}
+.notes{background:#FFFBF0;border:1px solid #F5D76E;border-radius:var(--r);padding:13px 14px;font-size:12px;color:#7A6000;line-height:1.6;display:none;}
+.notes strong{color:#5A4500;}
+.warn{background:#FEF3E2;border:1px solid #F5D76E;border-radius:var(--r);padding:12px 14px;font-size:12px;color:#7A4000;margin-bottom:14px;}
 
-.out-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap;}
-.out-header-left h2{font-size:20px;font-weight:700;}
-.out-meta{font-size:11.5px;color:var(--text-soft);margin-top:5px;display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
-.m-tag{background:var(--navy-mid);color:#A8B4CC;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;}
-.m-receita{background:#E8F5EE;color:var(--green);padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700;border:1px solid #A8D8B9;}
-
-.btn-copy{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap;}
-.btn-copy:hover{background:var(--navy-mid);}
-
-.scenes{display:flex;flex-direction:column;gap:12px;margin-bottom:22px;}
-.scene-card{background:#F8F9FC;border:1px solid var(--gray-mid);border-radius:var(--radius);overflow:hidden;}
-.scene-hd{background:var(--navy);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:9px;font-size:11px;font-weight:600;letter-spacing:.3px;}
-.scene-num{background:var(--red);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
-.scene-time{margin-left:auto;color:#7B8BAF;font-size:10px;font-weight:400;}
-.scene-bd{padding:12px 14px;font-size:13px;line-height:1.65;color:var(--text);white-space:pre-wrap;}
-.fala-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:4px;}
-.seedance-block{margin-top:10px;background:#EEF2FF;border-left:3px solid #4F6BED;border-radius:0 6px 6px 0;padding:8px 11px;}
-.seedance-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#4F6BED;margin-bottom:3px;}
-.seedance-text{font-size:11.5px;color:#2D3A6A;line-height:1.6;font-style:italic;}
-
-.notes-box{background:#FFFBF0;border:1px solid #F5D76E;border-radius:var(--radius);padding:12px 14px;font-size:12px;color:#7A6000;line-height:1.6;}
-.notes-box strong{color:#5A4500;}
+/* ── DESKTOP: sidebar + main lado a lado */
+@media(min-width:768px){
+  .page{flex-direction:row;align-items:flex-start;gap:20px;padding:24px 20px;}
+  .sidebar-wrap{width:360px;flex-shrink:0;position:sticky;top:75px;max-height:calc(100vh - 95px);overflow-y:auto;}
+  .main-wrap{flex:1;min-width:0;}
+}
 </style>
 </head>
 <body>
 
-<!-- TELA DE SENHA -->
-<div id="pwScreen">
-  <div class="pw-box">
-    <div class="pw-logo">Polishop</div>
-    <h2>Script Factory</h2>
-    <p>Ferramenta interna de geração de roteiros.<br>Digite a senha para continuar.</p>
-    <input class="pw-input" type="password" id="pwInput" placeholder="••••••••"
-      onkeydown="if(event.key==='Enter')checkPw()">
-    <button class="pw-btn" onclick="checkPw()">Entrar</button>
-    <div class="pw-error" id="pwError">Senha incorreta. Tente novamente.</div>
-  </div>
-</div>
-
 <header>
   <div class="logo">Polishop</div>
   <h1>Script Factory · Panelas</h1>
-  <div class="pill">Reels / TikTok · Orgânico &amp; Mídia Paga · Seedance</div>
+  <div class="pill-demo">✦ Demo</div>
 </header>
 
-<div class="layout">
+<div class="page">
 
-<!-- ══════════════════════════════════════
-     SIDEBAR
-══════════════════════════════════════ -->
-<aside class="sidebar">
+<!-- SIDEBAR -->
+<div class="sidebar-wrap">
 
-  <!-- STEP 1: FORMATO -->
   <div class="step open active" id="step1">
-    <div class="step-head" onclick="toggleStep('step1')">
-      <div class="step-num">1</div>
-      <div class="step-title">Formato</div>
-      <div class="step-summary" id="s1sum">—</div>
-      <div class="step-chevron">▾</div>
+    <div class="step-head">
+      <div class="step-num">1</div><div class="step-title">Formato</div>
+      <div class="step-sum" id="s1s">—</div><div class="chevron">▾</div>
     </div>
     <div class="step-body">
       <div class="opt-row">
-        <div class="opt" id="fmt-60" onclick="selectFormato('60')">🎬 1 minuto</div>
-        <div class="opt" id="fmt-30" onclick="selectFormato('30')">⚡ 30 segundos</div>
+        <div class="opt" id="f60">🎬 1 minuto</div>
+        <div class="opt" id="f30">⚡ 30 segundos</div>
       </div>
     </div>
   </div>
 
-  <!-- STEP 2: PERSONA -->
   <div class="step" id="step2">
-    <div class="step-head" onclick="toggleStep('step2')">
-      <div class="step-num">2</div>
-      <div class="step-title">Persona</div>
-      <div class="step-summary" id="s2sum">—</div>
-      <div class="step-chevron">▾</div>
+    <div class="step-head">
+      <div class="step-num">2</div><div class="step-title">Persona</div>
+      <div class="step-sum" id="s2s">—</div><div class="chevron">▾</div>
     </div>
-    <div class="step-body">
-      <div class="persona-list" id="personaList"></div>
-    </div>
+    <div class="step-body"><div class="p-list" id="personaList"></div></div>
   </div>
 
-  <!-- STEP 3: PRODUTO -->
   <div class="step" id="step3">
-    <div class="step-head" onclick="toggleStep('step3')">
-      <div class="step-num">3</div>
-      <div class="step-title">Produto</div>
-      <div class="step-summary" id="s3sum">—</div>
-      <div class="step-chevron">▾</div>
+    <div class="step-head">
+      <div class="step-num">3</div><div class="step-title">Produto</div>
+      <div class="step-sum" id="s3s">—</div><div class="chevron">▾</div>
     </div>
-    <div class="step-body">
-      <div class="produto-list" id="produtoList"></div>
-    </div>
+    <div class="step-body"><div class="prod-list" id="prodList"></div></div>
   </div>
 
-  <!-- STEP 4: DIFERENCIAIS -->
   <div class="step" id="step4">
-    <div class="step-head" onclick="toggleStep('step4')">
-      <div class="step-num">4</div>
-      <div class="step-title">Diferenciais</div>
-      <div class="step-summary" id="s4sum">—</div>
-      <div class="step-chevron">▾</div>
+    <div class="step-head">
+      <div class="step-num">4</div><div class="step-title">Diferenciais</div>
+      <div class="step-sum" id="s4s">—</div><div class="chevron">▾</div>
     </div>
     <div class="step-body">
       <div class="diff-list" id="diffList"></div>
@@ -324,79 +212,52 @@ header .pill{background:#0E1728;color:#7B8BAF;font-size:11px;padding:4px 10px;bo
     </div>
   </div>
 
-  <!-- STEP 5: ASSUNTO -->
   <div class="step" id="step5">
-    <div class="step-head" onclick="toggleStep('step5')">
-      <div class="step-num">5</div>
-      <div class="step-title">Assunto</div>
-      <div class="step-summary" id="s5sum">—</div>
-      <div class="step-chevron">▾</div>
+    <div class="step-head">
+      <div class="step-num">5</div><div class="step-title">Assunto</div>
+      <div class="step-sum" id="s5s">—</div><div class="chevron">▾</div>
     </div>
     <div class="step-body">
-      <div class="assunto-grid">
-        <div class="assunto-card" id="ass-receitas" onclick="selectAssunto('receitas')">
-          <div class="assunto-icon">🍳</div>
-          <div class="assunto-label">Receitas</div>
-          <div class="assunto-sub">Prato em destaque</div>
-        </div>
-        <div class="assunto-card" id="ass-sazonal" onclick="selectAssunto('sazonal')">
-          <div class="assunto-icon">📅</div>
-          <div class="assunto-label">Sazonal</div>
-          <div class="assunto-sub">Data / momento</div>
-        </div>
-        <div class="assunto-card" id="ass-teste" onclick="selectAssunto('teste')">
-          <div class="assunto-icon">🔬</div>
-          <div class="assunto-label">Teste da panela</div>
-          <div class="assunto-sub">Queijo, leite, ovo... coloca à prova</div>
-        </div>
-        <div class="assunto-card" id="ass-educacional" onclick="selectAssunto('educacional')">
-          <div class="assunto-icon">💡</div>
-          <div class="assunto-label">Educacional</div>
-          <div class="assunto-sub">Dicas de uso, limpeza e cuidados</div>
-        </div>
+      <div class="ass-grid">
+        <div class="ass-card" id="ass-receitas"><div class="ass-icon">🍳</div><div class="ass-label">Receitas</div><div class="ass-sub">Prato em destaque</div></div>
+        <div class="ass-card" id="ass-sazonal"><div class="ass-icon">📅</div><div class="ass-label">Sazonal</div><div class="ass-sub">Data / momento</div></div>
+        <div class="ass-card" id="ass-teste"><div class="ass-icon">🔬</div><div class="ass-label">Teste da panela</div><div class="ass-sub">Prova de performance</div></div>
+        <div class="ass-card" id="ass-educacional"><div class="ass-icon">💡</div><div class="ass-label">Educacional</div><div class="ass-sub">Informação útil</div></div>
       </div>
-
-      <!-- Extra: Receita -->
-      <div id="receitaBlock" class="receita-block" style="display:none">
-        <div class="r-suggestions" id="receitaSuggs"></div>
+      <div id="receitaBlock" style="display:none;margin-top:12px">
+        <div class="r-suggs" id="receitaSuggs"></div>
         <div class="r-label">Ou descreva livremente:</div>
-        <textarea class="r-input" id="receitaInput" rows="2" placeholder="Ex: Frango grelhado com limão..." oninput="onReceitaType()"></textarea>
+        <textarea class="r-input" id="receitaInput" rows="2" placeholder="Ex: Frango grelhado..." oninput="S.receita=this.value.trim();checkReady()"></textarea>
       </div>
-
-      <!-- Extra: Sazonal -->
-      <div id="sazonalBlock" class="sazonal-block" style="display:none">
-        <div class="r-label" style="margin-top:10px">Data / momento:</div>
-        <div class="opt-row" style="margin-bottom:8px">
-          <div class="opt" id="saz-maes" onclick="selectSazonal('Dia das Mães')">💐 Dia das Mães</div>
-          <div class="opt" id="saz-pais" onclick="selectSazonal('Dia dos Pais')">👨 Dia dos Pais</div>
-          <div class="opt" id="saz-natal" onclick="selectSazonal('Natal')">🎄 Natal</div>
+      <div id="sazonalBlock" style="display:none;margin-top:12px">
+        <div class="r-label">Data / momento:</div>
+        <div class="opt-row" style="margin-top:6px">
+          <div class="opt" id="saz-maes">💐 Dia das Mães</div>
+          <div class="opt" id="saz-pais">👨 Dia dos Pais</div>
+          <div class="opt" id="saz-natal">🎄 Natal</div>
         </div>
-        <input class="s-input" id="sazonalInput" type="text" placeholder="Ou descreva outro contexto..." oninput="onSazonalType()">
       </div>
     </div>
   </div>
 
-  <!-- STEP 6: CTA -->
   <div class="step" id="step6">
-    <div class="step-head" onclick="toggleStep('step6')">
-      <div class="step-num">6</div>
-      <div class="step-title">CTA</div>
-      <div class="step-summary" id="s6sum">—</div>
-      <div class="step-chevron">▾</div>
+    <div class="step-head">
+      <div class="step-num">6</div><div class="step-title">CTA</div>
+      <div class="step-sum" id="s6s">—</div><div class="chevron">▾</div>
     </div>
     <div class="step-body">
       <div class="cta-list">
-        <div class="cta-card" id="cta-link" onclick="selectCTA('link')">
-          <div class="cta-top"><span class="cta-badge organico">Orgânico</span></div>
+        <div class="cta-card" id="cta-link">
+          <div class="cta-top"><span class="cta-badge org">Orgânico</span></div>
           <div class="cta-text">Comenta "panela" que eu te mando o link</div>
           <div class="cta-sub">Engajamento nos comentários</div>
         </div>
-        <div class="cta-card" id="cta-salva" onclick="selectCTA('salva')">
-          <div class="cta-top"><span class="cta-badge organico">Orgânico</span></div>
+        <div class="cta-card" id="cta-salva">
+          <div class="cta-top"><span class="cta-badge org">Orgânico</span></div>
           <div class="cta-text">Gostou? Salva, marca ou envia</div>
           <div class="cta-sub">Alcance e compartilhamento</div>
         </div>
-        <div class="cta-card" id="cta-clique" onclick="selectCTA('clique')">
+        <div class="cta-card" id="cta-clique">
           <div class="cta-top"><span class="cta-badge pago">Mídia Paga</span></div>
           <div class="cta-text">Clique e peça a sua</div>
           <div class="cta-sub">Conversão direta</div>
@@ -405,648 +266,425 @@ header .pill{background:#0E1728;color:#7B8BAF;font-size:11px;padding:4px 10px;bo
     </div>
   </div>
 
-  <!-- REFERÊNCIA OPCIONAL -->
-  <div class="step" id="stepRef">
-    <div class="step-head" onclick="toggleStep('stepRef')">
-      <div class="step-num" style="background:#4F6BED">✦</div>
-      <div class="step-title">Referência <span style="font-weight:400;color:var(--text-soft);font-size:11px">opcional</span></div>
-      <div class="step-summary" id="sRefsum">—</div>
-      <div class="step-chevron">▾</div>
-    </div>
-    <div class="step-body">
-      <div class="r-label">Cole aqui o roteiro ou descrição de um vídeo que performou bem e quer usar como referência de estilo:</div>
-      <textarea class="r-input" id="refInput" rows="5"
-        style="margin-top:6px;border-color:#4F6BED44"
-        placeholder="Ex: Vídeo de frango grelhado — hook: 'Você ainda joga água pra não grudar?' — câmera mostra a frigideira seca, coloca o frango, vira sem grudar, close no resultado. CTA: 'salva esse vídeo'..."
-        oninput="onRefInput()"></textarea>
-      <div style="font-size:10px;color:var(--text-soft);margin-top:5px">O Claude vai capturar o ritmo, o tipo de hook e a estrutura — não o conteúdo literal.</div>
-    </div>
+  <button class="btn-gen" id="btnGen" disabled>Gerar roteiro</button>
+
+</div><!-- /sidebar-wrap -->
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div id="emptyState" style="padding:40px 20px;text-align:center;color:var(--soft)">
+    <div style="font-size:48px;margin-bottom:12px">🍳</div>
+    <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px">Configure e gere</div>
+    <div style="font-size:13px;line-height:1.6;max-width:340px;margin:0 auto">Siga os 6 passos para gerar um roteiro calibrado para a persona, o produto e o canal.</div>
+    <div style="margin-top:14px;font-size:11px;background:#FEF3E2;color:#7A4000;padding:10px 14px;border-radius:8px;border:1px solid #F5D76E;max-width:340px;margin-left:auto;margin-right:auto">✦ Versão Demo — 7 roteiros pré-gerados. Na versão completa o Claude gera qualquer combinação.</div>
   </div>
-
-  <button class="btn-gen" id="btnGen" disabled onclick="generate()">Gerar roteiro</button>
-
-</aside>
-
-<!-- ══════════════════════════════════════
-     MAIN
-══════════════════════════════════════ -->
-<main class="main">
-
-  <div class="empty-state" id="emptyState">
-    <div class="icon">🍳</div>
-    <h2>Configure e gere</h2>
-    <p>Siga os 6 passos ao lado para gerar um roteiro calibrado para a persona, o produto e o canal — orgânico ou mídia paga.</p>
-  </div>
-
-  <div class="loading-box" id="loadingBox">
+  <div class="loading" id="loadingBox">
     <div class="spinner"></div>
-    <div class="loading-msg" id="loadingMsg">Gerando roteiro...</div>
+    <p>Carregando roteiro...</p>
   </div>
-
-  <div class="error-box" id="errorBox"></div>
-
   <div class="output" id="outputBox">
     <div id="outBadge" class="out-badge"></div>
-    <div class="out-header">
-      <div class="out-header-left">
-        <h2 id="outTitle">Roteiro</h2>
-        <div class="out-meta" id="outMeta"></div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn-copy" onclick="copyScript()">Copiar roteiro</button>
-        <button class="btn-copy" style="background:#1A4A34" onclick="exportJSON()">⬇ Exportar JSON</button>
-      </div>
+    <div class="out-title" id="outTitle"></div>
+    <div class="out-meta" id="outMeta"></div>
+    <div class="out-btns">
+      <button class="btn-copy">Copiar roteiro</button>
+      <button class="btn-export">⬇ JSON</button>
     </div>
     <div class="scenes" id="scenesList"></div>
-    <div class="notes-box" id="notesBox"></div>
+    <div class="notes" id="notesBox"></div>
   </div>
-
-</main>
 </div>
 
+</div><!-- /page -->
+
 <script>
-// ══════════════════════════════════════════════
-// SENHA
-// ══════════════════════════════════════════════
-window._appPassword = '';
-
-function checkPw(){
-  const val = document.getElementById('pwInput').value.trim();
-  if(!val){ return; }
-  // Salva e testa chamando o backend com um ping
-  window._appPassword = val;
-  fetch('/api/generate',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({prompt:'ping',password:val})
-  }).then(r=>{
-    if(r.status===401){
-      document.getElementById('pwError').className='pw-error on';
-      window._appPassword='';
-    } else {
-      document.getElementById('pwScreen').style.display='none';
-    }
-  }).catch(()=>{
-    // Se der erro de rede, deixa entrar mesmo assim (será tratado no generate)
-    document.getElementById('pwScreen').style.display='none';
-  });
-}
-
-// ══════════════════════════════════════════════
-// DADOS
-// ══════════════════════════════════════════════
-const PERSONAS = [
-  {id:'camila',    name:'Camila Rocha',          demo:'29a · SP · Fitness Mulher',    tag:'Fitness – Mulher',      color:'#B03060', emoji:'💪',
-   voice:'direta, prática, sem frescura — mas feminina. Fala no modo treino, com segurança. Expressões típicas: "sem desculpa", "isso aqui é sério", "funcionou demais", "gente, olha isso", "não tem como não amar", "resultado real". Reage com "caramba" ou "que resultado" — nunca com "mano", "cara" ou expressões masculinas. Não exagera em exclamações.',
-   desc:'Personal trainer. Prepara marmitas fitness. Detesta proteína grudada. TikTok de nutrição. Foco em resultado e saúde.'},
-  {id:'rafael',   name:'Rafael Mendes',          demo:'33a · SP · Fitness Homem',     tag:'Fitness – Homem',       color:'#1A6B4A', emoji:'🏋️',
-   voice:'objetivo, direto, levemente técnico. Fala como quem testou e aprovou. Expressões: "testei aqui", "faz sentido", "diferença real", "sem complicação", reação de aprovação: "perfeito" ou "exatamente isso". Nunca exagera.',
-   desc:'Engenheiro civil. Crossfit 5x/semana. Prepara marmitas aos domingos. Metódico, pesquisa antes de comprar.'},
-  {id:'catarina', name:'Catarina Nunes',         demo:'60a · SP · Dona de Casa',      tag:'Dona de Casa',          color:'#7B4B94', emoji:'🏠',
-   voice:'acolhedora, calorosa, como uma mãe contando segredo de cozinha para uma amiga. Expressões: "minha filha", "olha só", "que maravilha", "eu não acreditei", "é uma bênção". Reações espontâneas de encantamento são bem-vindas.',
-   desc:'Mãe, esposa, pequena empreendedora. Ganhou as panelas de presente. Cozinha todo dia. Colesterol como preocupação. Sem lava-louças.'},
-  {id:'paulo_ana',name:'Paulo & Ana Ferreira',   demo:'38/35a · Campinas · Casal c/ filho', tag:'Casal com Filho', color:'#2255A4', emoji:'👨‍👩‍👦',
-   voice:'informal, de casal no cotidiano. Podem falar juntos ou um complementar o outro. Expressões: "a gente", "aqui em casa", "olha só", "não tem erro", reação conjunta: "amamos". Tom de rotina real, sem performance.',
-   desc:'Dia a dia corrido. Jantar em 30 minutos. Ana controla ingredientes por conta do filho. Compram por indicação.'},
-  {id:'marcelo',  name:'Marcelo Gomes',          demo:'41a · SP · Entusiasta',        tag:'Entusiasta da Cozinha', color:'#B56A00', emoji:'👨‍🍳',
-   voice:'apaixonado, um pouco orgulhoso, como quem descobriu um segredo de chef. Expressões: "olha o resultado", "simplesmente perfeito", "isso aqui mudou meu jogo", "wow, olha só". Reage com entusiasmo genuíno ao resultado visual do prato.',
-   desc:'Advogado. Cozinha como válvula de escape. Salva receitas do YouTube. Quer resultado de chef em casa.'},
-  {id:'lucas_julia',name:'Lucas & Júlia Barros', demo:'27/25a · Curitiba · Casal Jovem', tag:'Casal Jovem',        color:'#0D7A6B', emoji:'📱',
-   voice:'leve, curioso, atual. Tom de "olha o que a gente descobriu". Revezam a fala naturalmente. Expressões: "gente", "sério que ficou assim?", "não tô acreditando", "top demais", "adorei". Reagem com leveza e surpresa genuína.',
-   desc:'Dev e designer UX. Cozinham revezando. Reproduzem receitas do TikTok. Têm canal de dia a dia.'},
-  {id:'isabela',  name:'Isabela Nunes',          demo:'22a · SP · Gen Z Sozinha',     tag:'Gen Z Morando Sozinha', color:'#C0392B', emoji:'🎓',
-   voice:'descontraída, sem filtro, como story do dia. Expressões: "gente", "mentira que ficou assim", "tô obcecada", "não sabia cozinhar e olha", "que isso". Reage com espanto descontraído. Pode usar "POV:" no hook. Sem formalidade nenhuma.',
-   desc:'Universitária de nutrição. Primeira vez sozinha. Sem habilidade. Preocupada com PFOA. Descobre tudo pelo TikTok.'},
+const PERSONAS=[
+  {id:'camila',     name:'Camila Rocha',        demo:'29a · SP',  tag:'Fitness – Mulher',      color:'#B03060',emoji:'💪'},
+  {id:'rafael',     name:'Rafael Mendes',        demo:'33a · SP',  tag:'Fitness – Homem',       color:'#1A6B4A',emoji:'🏋️'},
+  {id:'catarina',   name:'Catarina Nunes',       demo:'60a · SP',  tag:'Dona de Casa',          color:'#7B4B94',emoji:'🏠'},
+  {id:'paulo_ana',  name:'Paulo & Ana Ferreira', demo:'38/35a',    tag:'Casal com Filho',       color:'#2255A4',emoji:'👨‍👩‍👦'},
+  {id:'marcelo',    name:'Marcelo Gomes',        demo:'41a · SP',  tag:'Entusiasta da Cozinha', color:'#B56A00',emoji:'👨‍🍳'},
+  {id:'lucas_julia',name:'Lucas & Júlia Barros', demo:'27/25a',    tag:'Casal Jovem',           color:'#0D7A6B',emoji:'📱'},
+  {id:'isabela',    name:'Isabela Nunes',        demo:'22a · SP',  tag:'Gen Z Morando Sozinha', color:'#C0392B',emoji:'🎓'},
 ];
-
-const PRODUTOS = [
-  {id:'classica', label:'Panela Polishop Clássica', color:'#C0392B',
-   desc:'Linha original. 6 camadas UltraStone. Antiaderente Nível A Inmetro. Livre de PFOA. Funciona em todos os fogões incluindo indução. Referência da categoria.'},
-  {id:'home',     label:'Panela ichef Home',        color:'#2255A4',
-   desc:'Mais leve. Cabo Soft Touch ergonômico. Antiaderente Nível A Inmetro. Livre de PFOA. Ideal para uso diário. Funciona em todos os fogões.'},
-  {id:'ultra',    label:'Panela ichef Ultra',       color:'#1A6B4A',
-   desc:'Cabo removível. Vai do fogão ao forno e à mesa. Revestimento cerâmico premium. Antiaderente Nível A Inmetro. Design premium. Multi-uso.'},
+const PRODUTOS=[
+  {id:'classica',label:'Panela Polishop Clássica',color:'#C0392B'},
+  {id:'home',    label:'Panela ichef Home',       color:'#2255A4'},
+  {id:'ultra',   label:'Panela ichef Ultra',      color:'#1A6B4A'},
 ];
-
-const DIFERENCIAIS = [
-  // ── Todos os produtos
-  {id:'antiad',     label:'Antiaderente que não gruda nada',  linhas:['classica','home','ultra'],
-   fala:'O antiaderente é o melhor que existe — não gruda absolutamente nada. Na fala: "não gruda nada", "faz tudo sem grudar", "não fica nada na panela", "simplesmente não gruda".'},
-  {id:'pfoa',       label:'Livre de PFOA',                    linhas:['classica','home','ultra'],
-   fala:'Sem PFOA — sem aquela substância química preocupante. Na fala: "sem PFOA", "sem química ruim", "pode cozinhar sem medo", "segura pra saúde", "nada de veneno na comida".'},
-  {id:'original',   label:'Original Polishop — recuse imitações', linhas:['classica','home','ultra'],
-   fala:'É a original — tem muita imitação por aí que não entrega o mesmo resultado. Na fala: "só a original Polishop", "cuidado com as cópias", "não é qualquer uma", "essa aqui é a verdadeira", "recuse imitação".'},
-  {id:'lavar',      label:'Mais fácil de limpar/lavar',       linhas:['classica','home','ultra'],
-   fala:'Lava em segundos — passa uma esponja e tá limpa, sem esfregar. Na fala: "lavou na hora", "passa um pano e acabou", "zero trabalho pra lavar", "limpa em segundos".'},
-  {id:'sem_oleo',   label:'Sem usar óleo',                    linhas:['classica','home','ultra'],
-   fala:'Cozinha sem precisar de óleo nenhum, ou com uma gotinha só. Na fala: "sem óleo", "zero óleo", "uma gota e tá feito", "comida mais saudável sem abrir mão do sabor".'},
-  {id:'fogoes',     label:'Todos os tipos de fogão',          linhas:['classica','home','ultra'],
-   fala:'Funciona em qualquer fogão — gás, elétrico, indução, vitrocerâmico. Na fala: "funciona em qualquer fogão", "até em indução", "compatível com tudo", "não importa o fogão".'},
-  {id:'exclusiva',  label:'Exclusividade Polishop',           linhas:['classica','home','ultra'],
-   fala:'Só encontra na Polishop — não tem em outro lugar. Na fala: "só na Polishop", "exclusivo", "não acha em outro lugar", "produto exclusivo".'},
-  // ── Clássica
-  {id:'calor',      label:'Retém e distribui o calor uniforme', linhas:['classica'],
-   fala:'Distribui o calor por igual — não queima de um lado e fica cru do outro. Na fala: "cozinha por igual", "calor uniforme em toda a panela", "sem ponto frio", "tudo no ponto certo".'},
-  {id:'desejada',   label:'"Sonho de adulto" / a mais desejada', linhas:['classica'],
-   fala:'É o tipo de panela que todo mundo quer ter em casa — a mais desejada. Na fala: "sonho de adulto", "a panela que eu sempre quis", "a mais desejada", "todo mundo que vê quer uma".'},
-  // ── Ultra
-  {id:'cabo_rem',   label:'Solta o cabo — vai ao forno',      linhas:['ultra'],
-   fala:'O cabo sai — vai direto ao forno e serve na mesa do mesmo jeito. Na fala: "tira o cabo e vai pro forno", "do fogão pro forno sem trocar de panela", "menos louça pra lavar".'},
-  {id:'suporte',    label:'Cabo com suporte de utensílios',   linhas:['ultra'],
-   fala:'O cabo tem um suporte que segura a espátula e a colher — nada de sujar a bancada. Na fala: "o cabo segura a espátula", "não precisa de apoio de colher", "tudo junto e organizado".'},
-  // ── Home
-  {id:'leve',       label:'Mais leve',                        linhas:['home'],
-   fala:'É mais leve que as outras — fácil de manusear, sem forçar o pulso. Na fala: "bem levinha", "fácil de segurar", "não cansa o braço", "leve de verdade".'},
+const DIFFS=[
+  {id:'nivel_a',    label:'Não gruda nada (Nível A)',    linhas:['classica','home','ultra']},
+  {id:'pfoa',       label:'Livre de PFOA',               linhas:['classica','home','ultra']},
+  {id:'sem_oleo',   label:'Cozinha sem óleo',            linhas:['classica','home','ultra']},
+  {id:'facil_lavar',label:'Fácil de lavar',              linhas:['classica','home','ultra']},
+  {id:'6_camadas',  label:'6 camadas UltraStone',        linhas:['classica']},
+  {id:'inducao',    label:'Funciona em todos os fogões', linhas:['classica','home','ultra']},
+  {id:'cabo_rem',   label:'Cabo removível',              linhas:['ultra']},
+  {id:'forno_mesa', label:'Vai ao forno e à mesa',       linhas:['ultra']},
 ];
-
-const RECEITAS = {
-  classica:['Frango grelhado','Bife acebolado','Arroz soltinho','Estrogonofe','Omelete','File de peixe','Legumes salteados','Panqueca'],
-  home:    ['Ovos mexidos','Frango ao limão','Macarrão alho e óleo','Omelete de queijo','Salmão grelhado','Carne moída','Refogado de legumes'],
-  ultra:   ['Risoto','Frango ao forno','Crepe francês','Salmão com crosta','Frango marroquino','Lasanha','Carne ao vinho'],
+const RECEITAS={
+  classica:['Frango grelhado','Bife acebolado','Estrogonofe','Omelete','File de peixe','Panqueca'],
+  home:    ['Ovos mexidos','Frango ao limão','Macarrão alho e óleo','Salmão grelhado','Carne moída'],
+  ultra:   ['Risoto','Frango ao forno','Crepe francês','Salmão com crosta','Frango marroquino'],
 };
+const ACOLORS={receitas:'#1A4A34',sazonal:'#5A3800',teste:'#1A2A5A',educacional:'#3A1A5A'};
+const ALABELS={receitas:'🍳 Receitas',sazonal:'📅 Sazonal',teste:'🔬 Teste da panela',educacional:'💡 Educacional'};
 
-const CTA_TEXTS = {
-  link:  'Comenta "panela" aqui que eu te mando o link — adapte ao tom da persona mas mantenha o gatilho nos comentários.',
-  salva: 'Gostou? Salva, marca alguém ou envia pra quem precisa — adapte ao tom da persona.',
-  clique:'Clique no link e peça a sua — é um CTA de conversão direta, tom mais assertivo, adequado para mídia paga.',
-};
+const ROTEIROS=[
+  {key:'camila_classica_teste_30s',persona:'camila',produto:'classica',assunto:'teste',formato:'30',diffs:['nivel_a','sem_oleo','facil_lavar'],
+   cenas:[
+    {numero:1,titulo:'Hook / Dor',timing:'0–5s',fala:'Peito de frango grudando na frigideira às 6 da manhã? Isso não pode ser a minha vida.',seedance:'Close em frigideira comum com frango grudado e queimando nas bordas. Câmera na mão, luz fria de manhã cedo, bancada pequena de apartamento. Vapor leve. Tom frustrado e realista.'},
+    {numero:2,titulo:'O desafio',timing:'5–12s',fala:'Testei aqui: frango direto na Panela Polishop — sem gota de óleo nenhuma.',seedance:'Mão colocando frango cru em frigideira vermelha nova. Câmera fixa de cima, luz natural. Tom limpo e confiante.'},
+    {numero:3,titulo:'Panela em ação',timing:'12–22s',fala:'Caramba — não grudou nada. Virei sem esforço. E olha a limpeza: passou um pano, tá nova. Isso aqui é sério.',seedance:'Close no frango dourado deslizando pela frigideira sem resistência. Corte para persona virando facilmente. Depois close da frigideira sendo limpa com papel toalha. Luz quente.'},
+    {numero:4,titulo:'Resultado',timing:'22–27s',fala:'Frango perfeito, zero óleo, panela limpa em 10 segundos. Resultado real.',seedance:'Prato montado com frango grelhado dourado. Fundo desfocado, luz quente lateral. Tom de vitória.'},
+    {numero:5,titulo:'CTA',timing:'27–30s',fala:"Comenta 'panela' aqui que eu te mando o link.",seedance:'Persona olhando direto para câmera, sorriso contido confiante. Enquadramento médio, fundo desfocado.'},
+   ],notas:'Cortes rápidos, ritmo de Reel fitness. Música eletrônica leve. Tom direto sem drama excessivo.'},
+  {key:'catarina_classica_receitas_60s',persona:'catarina',produto:'classica',assunto:'receitas',formato:'60',diffs:['sem_oleo','pfoa','facil_lavar'],extra:{receita:'Peixe grelhado com legumes'},
+   cenas:[
+    {numero:1,titulo:'Hook da receita',timing:'0–8s',fala:'Minha filha, vou te mostrar o peixe grelhado mais fácil que você já viu na vida.',seedance:'Persona na cozinha brasileira, avental florido, sorrindo para câmera. Bancada com peixe fresco e temperos. Luz natural com cortina clara. Tom acolhedor.'},
+    {numero:2,titulo:'Preparo',timing:'8–20s',fala:'Temperei com limão, alho e sal — simples assim. Aqui em casa a gente não complica. Os legumes vão junto, na mesma panela.',seedance:'Mãos temperando filé de peixe sobre tábua de madeira. Corte para legumes coloridos. Filtro de barro ao fundo. Luz quente.'},
+    {numero:3,titulo:'Panela em ação',timing:'20–35s',fala:'Olha só — coloquei o peixe na Panela Polishop sem uma gota de óleo. Nenhuma. Ele não gruda, não quebra, sai inteirinho. Que maravilha essa panela.',seedance:'Close no peixe dourado na frigideira vermelha sem óleo. Persona virando o peixe inteiro — não quebra. Expressão de satisfação genuína.'},
+    {numero:4,titulo:'Resultado',timing:'35–48s',fala:'Olha o resultado! Peixe dourado, legumes no ponto — e a panela? Passei um pano e acabou.',seedance:'Prato rústico com peixe grelhado e legumes coloridos. Luz lateral quente. Corte para frigideira sendo limpa facilmente.'},
+    {numero:5,titulo:'Diferencial reforçado',timing:'48–55s',fala:'E o melhor: sem química ruim nenhuma na comida da minha família. Pode cozinhar sem medo.',seedance:'Persona segurando a panela com carinho. Close no revestimento. Tom de confiança e cuidado materno.'},
+    {numero:6,titulo:'CTA',timing:'55–60s',fala:'Salva essa receita e manda pra quem precisa comer bem sem complicação!',seedance:'Persona acenando para câmera com sorriso aberto. Tom caloroso de encerramento.'},
+   ],notas:'Ritmo tranquilo, sem cortes bruscos. Som ambiente de cozinha. Música brasileira suave. Tom de programa de culinária caseiro.'},
+  {key:'rafael_home_educacional_30s',persona:'rafael',produto:'home',assunto:'educacional',formato:'30',diffs:['pfoa','nivel_a','inducao'],
+   cenas:[
+    {numero:1,titulo:'Hook curiosidade',timing:'0–5s',fala:'Você sabe o que é PFOA e por que ele não pode estar na sua comida?',seedance:'Persona de frente para câmera, cozinha planejada ao fundo. Expressão séria e direta. Enquadramento médio. Luz fria e limpa.'},
+    {numero:2,titulo:'Contexto',timing:'5–12s',fala:'É uma substância química presente em panelas baratas. Testei aqui — não aparece nas panelas Polishop. Faz sentido pra quem leva alimentação a sério.',seedance:'Close rápido em panela genérica barata, corte para a Panela ichef Home vermelha. Persona gesticulando.'},
+    {numero:3,titulo:'Demonstração',timing:'12–22s',fala:'Sem PFOA, não gruda nada — e funciona em qualquer fogão, incluindo indução. Diferença real.',seedance:'Persona colocando a panela em cooktop de indução. Água fervendo rapidamente. Close no fundo da panela. Luz clean.'},
+    {numero:4,titulo:'Benefício',timing:'22–27s',fala:'Mesma marmita, alimentação mais segura. Simples assim.',seedance:'Pote de marmita sendo fechado com refeição fitness. Tom de missão cumprida.'},
+    {numero:5,titulo:'CTA',timing:'27–30s',fala:"Comenta 'panela' que eu te mando o link.",seedance:'Persona olhando para câmera, aceno leve. Enquadramento fechado. Tom direto.'},
+   ],notas:'Cortes objetivos. Música eletrônica discreta. Tom informativo masculino — sem drama, só fatos.'},
+  {key:'paulo_ana_classica_sazonal_60s',persona:'paulo_ana',produto:'classica',assunto:'sazonal',formato:'60',diffs:['sem_oleo','facil_lavar','nivel_a'],extra:{sazonal:'Dia das Mães'},
+   cenas:[
+    {numero:1,titulo:'Hook sazonal',timing:'0–8s',fala:'A gente queria dar um presente pro Dia das Mães que ela ia usar todo dia — não guardar na prateleira.',seedance:'Casal na cozinha simples, segurando caixa embrulhada. Sorriso genuíno. Luz natural da manhã. Tom de história real.'},
+    {numero:2,titulo:'Contexto da data',timing:'8–20s',fala:'Nossa mãe cozinha toda semana pra família. A panela dela já tava velha, descascando. Esse ano o presente ia ser de verdade.',seedance:'Close em panela velha arranhada. Corte para o casal pesquisando no celular juntos. Tom íntimo.'},
+    {numero:3,titulo:'Panela em ação',timing:'20–35s',fala:'Ela abriu a Panela Polishop e foi direto pra cozinha testar. Fez ovo sem óleo nenhum. Não fica nada na panela. Ela amou.',seedance:'Mãe mais velha abrindo caixa com surpresa. Corte para ela na cozinha — ovo deslizando sem óleo. Sorriso espontâneo. Luz quente de cozinha brasileira.'},
+    {numero:4,titulo:'Resultado',timing:'35–48s',fala:"O melhor foi ela falar: 'Não tem erro, essa panela é uma bênção.' Aqui em casa virou a panela favorita.",seedance:'Família reunida à mesa almoçando. Panela vermelha visível na bancada ao fundo. Tom de domingo em família.'},
+    {numero:5,titulo:'Conexão afetiva',timing:'48–55s',fala:'Lava em segundos — ela mesma falou que nunca precisou esfregar. Pra quem cozinha todo dia, isso muda tudo.',seedance:'Close da mãe limpando a panela facilmente com sorriso. Tom caloroso.'},
+    {numero:6,titulo:'CTA',timing:'55–60s',fala:'Clica no link e garante o presente que ela vai usar todo dia.',seedance:'Casal olhando para câmera juntos sorrindo. Texto animado com CTA na tela.'},
+   ],notas:'Edição emocional com cortes suaves. Música instrumental com piano. Tom de depoimento real.'},
+  {key:'marcelo_ultra_receitas_60s',persona:'marcelo',produto:'ultra',assunto:'receitas',formato:'60',diffs:['cabo_rem','forno_mesa','sem_oleo'],extra:{receita:'Frango marroquino'},
+   cenas:[
+    {numero:1,titulo:'Hook da receita',timing:'0–8s',fala:'Wow — frango marroquino na frigideira, finalizado no forno, servido na mesa. Tudo na mesma peça.',seedance:'Close dramático na frigideira com frango dourado e especiarias coloridas. Câmera baixa, ilha de granito ao fundo. Luz quente cinematográfica.'},
+    {numero:2,titulo:'Preparo',timing:'8–20s',fala:'Temperei na véspera — cominho, cúrcuma, coentro, limão. O segredo é selar bem antes de ir pro forno.',seedance:'Mãos misturando especiarias coloridas. Corte para frango marinado. Tom de chef confiante.'},
+    {numero:3,titulo:'Panela em ação',timing:'20–35s',fala:'Selei aqui na Panela Polishop — sem óleo nenhum, olha o resultado. Tirei o cabo e levei direto pro forno assim mesmo. Isso aqui mudou meu jogo.',seedance:'Close no frango selando sem óleo — dourado perfeito. Persona removendo o cabo com facilidade. Colocando no forno. Expressão de orgulho.'},
+    {numero:4,titulo:'Resultado',timing:'35–48s',fala:'Simplesmente perfeito. Saiu do forno e foi direto pra mesa — sem trocar de travessa, sem perder o suco.',seedance:'Frigideira sem cabo chegando à mesa com frango dourado. Close no corte do frango suculento.'},
+    {numero:5,titulo:'Diferencial reforçado',timing:'48–55s',fala:'Menos louça, mais estilo. Direto na panela, na mesa.',seedance:'Visão aérea da frigideira como peça central da mesa posta. Persona satisfeito.'},
+    {numero:6,titulo:'CTA',timing:'55–60s',fala:'Salva esse vídeo e manda pra quem precisa elevar o nível na cozinha.',seedance:'Persona olhando para câmera com sorriso confiante. Tom de chef compartilhando segredo.'},
+   ],notas:'Edição cinematográfica com cortes lentos. Música jazz suave. Tom aspiracional.'},
+  {key:'lucas_julia_home_teste_30s',persona:'lucas_julia',produto:'home',assunto:'teste',formato:'30',diffs:['nivel_a','pfoa','facil_lavar'],
+   cenas:[
+    {numero:1,titulo:'Hook do desafio',timing:'0–5s',fala:'Gente, a gente fez o teste do ovo sem óleo na panela nova. Sério mesmo.',seedance:'Casal jovem em selfie mode na cozinha compacta. Expressão animada e curiosa. Luz LED branca. Tom espontâneo.'},
+    {numero:2,titulo:'O teste',timing:'5–12s',fala:'Ovo direto na frigideira fria, sem nada. Só ligamos o fogo e esperamos.',seedance:'Close na frigideira vazia sendo aquecida. Ovo sendo quebrado sem óleo. Câmera fixa de cima.'},
+    {numero:3,titulo:'Resultado surpreendente',timing:'12–22s',fala:'Não tô acreditando — saiu perfeito, não grudou nada. E lavou em dois segundos. Sem química ruim, top demais.',seedance:'Ovo frito perfeito deslizando na panela. Júlia com expressão de surpresa genuína. Corte para panela sendo enxaguada rapidamente. Ambos rindo.'},
+    {numero:4,titulo:'Reação',timing:'22–27s',fala:'A gente amou. Essa panela tá no nosso apartamento pra sempre.',seedance:'Casal segurando a panela juntos para câmera, sorrindo. Cozinha clean ao fundo.'},
+    {numero:5,titulo:'CTA',timing:'27–30s',fala:'Salva e manda pra quem tá montando a cozinha!',seedance:'Júlia apontando para câmera. Lucas acenando ao lado. Tom descontraído e jovem.'},
+   ],notas:'Edição rápida estilo TikTok. Música pop atual. Câmera na mão para parecer orgânico.'},
+  {key:'isabela_home_educacional_30s',persona:'isabela',produto:'home',assunto:'educacional',formato:'30',diffs:['pfoa','sem_oleo','facil_lavar'],
+   cenas:[
+    {numero:1,titulo:'Hook curiosidade',timing:'0–5s',fala:'POV: você assistiu um vídeo sobre PFOA em panela e nunca mais olhou a sua frigideira igual.',seedance:'Persona segurando celular com expressão de choque leve. Kitnet ao fundo. Luz de ring light. Texto POV na tela.'},
+    {numero:2,titulo:'Contexto',timing:'5–12s',fala:'Gente, PFOA é aquela química que solta de panela barata quando esquenta. Mentira que eu não sabia disso.',seedance:'Persona gesticulando explicando. Close no rosto expressivo. Tom de revelação com humor.'},
+    {numero:3,titulo:'Demonstração',timing:'12–22s',fala:'Aí eu troquei pra Panela Polishop — zero PFOA, cozinha sem óleo e lava em segundos. Tô obcecada.',seedance:'Persona mostrando a panela. Corte para ovo sendo feito sem óleo. Corte para panela sendo enxaguada. Expressão de aprovação divertida.'},
+    {numero:4,titulo:'Benefício',timing:'22–27s',fala:'Morar sozinha e comer bem sem gastar tempo lavando louça? Isso aqui é tudo.',seedance:'Persona na kitnet com mochila de faculdade ao fundo. Tom de descoberta de vida.'},
+    {numero:5,titulo:'CTA',timing:'27–30s',fala:"Comenta 'panela' aqui que eu te mando o link!",seedance:'Persona apontando para câmera. Sorriso aberto. Texto PANELA animado na tela.'},
+   ],notas:'Edição TikTok nativa — textos na tela, cortes rápidos. Câmera sempre em selfie. Tom de descoberta pessoal.'},
+];
 
-// ══════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════
-let S = {formato:null,persona:null,produto:null,diffs:[],assunto:null,receita:'',sazonal:'',cta:null,referencia:''};
+// ─── ESTADO ───────────────────────────────
+const S={formato:null,persona:null,produto:null,diffs:[],assunto:null,receita:'',sazonal:'',cta:null,ctaLabel:''};
+let lastResult=null;
 
-// ══════════════════════════════════════════════
-// STEPS ACCORDION
-// ══════════════════════════════════════════════
-function toggleStep(id){
-  const el=document.getElementById(id);
-  el.classList.toggle('open');
-}
+// ─── ACCORDION ────────────────────────────
+function tog(id){document.getElementById(id).classList.toggle('open');}
 function openStep(id){document.getElementById(id).classList.add('open');}
-function markDone(id,summary){
-  const el=document.getElementById(id);
-  el.classList.add('done');
-  el.classList.remove('active');
-  document.getElementById(id.replace('step','s')+'sum').textContent=summary;
-}
-function markActive(id){
-  document.getElementById(id).classList.add('active','open');
+function done(sid,sumId,txt){
+  const el=document.getElementById(sid);
+  el.classList.add('done');el.classList.remove('active');
+  document.getElementById(sumId).textContent=txt;
 }
 
-// ══════════════════════════════════════════════
-// SELECTORS
-// ══════════════════════════════════════════════
-function selectFormato(v){
+// ─── FORMATO ──────────────────────────────
+function pickFormato(v,el,lbl){
   S.formato=v;
-  document.getElementById('fmt-60').className='opt'+(v==='60'?' active':'');
-  document.getElementById('fmt-30').className='opt'+(v==='30'?' active':'');
-  document.getElementById('s1sum').textContent=v==='60'?'1 minuto':'30 segundos';
-  document.getElementById('step1').classList.add('done');
+  document.querySelectorAll('#step1 .opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  done('step1','s1s',lbl);
   openStep('step2');
   checkReady();
 }
 
+// ─── iOS helper: adiciona click e touchend ─
+function tap(el, fn){
+  el.addEventListener('click', fn);
+  el.addEventListener('touchend', function(e){e.preventDefault();fn(e);});
+}
+
+// ─── PERSONAS ─────────────────────────────
 function renderPersonas(){
   const el=document.getElementById('personaList');
-  el.innerHTML='';
   PERSONAS.forEach(p=>{
     const d=document.createElement('div');
-    d.className='persona-card'+(S.persona===p.id?' active':'');
-    d.innerHTML=`<div class="p-avatar" style="background:${p.color}">${p.emoji}</div><div class="p-info"><div class="p-name">${p.name}</div><div class="p-demo">${p.demo}</div></div><div class="p-tag">${p.tag}</div>`;
-    d.onclick=()=>{S.persona=p.id;renderPersonas();document.getElementById('s2sum').textContent=p.name;document.getElementById('step2').classList.add('done');openStep('step3');checkReady();};
+    d.className='p-card';
+    d.innerHTML=`<div class="avatar" style="background:${p.color}">${p.emoji}</div><div class="p-info"><div class="p-name">${p.name}</div><div class="p-demo">${p.demo}</div></div><div class="p-tag">${p.tag}</div>`;
+    tap(d,()=>{
+      S.persona=p.id;
+      document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('active'));
+      d.classList.add('active');
+      done('step2','s2s',p.name);
+      openStep('step3');
+      checkReady();
+    });
     el.appendChild(d);
   });
 }
 
+// ─── PRODUTOS ─────────────────────────────
 function renderProdutos(){
-  const el=document.getElementById('produtoList');
-  el.innerHTML='';
+  const el=document.getElementById('prodList');
   PRODUTOS.forEach(p=>{
     const d=document.createElement('div');
-    d.className='produto-card'+(S.produto===p.id?' active':'');
-    d.innerHTML=`<div class="p-dot" style="background:${p.color}"></div><div><div>${p.label}</div><div class="p-desc">${p.desc.split('.')[0]}.</div></div>`;
-    d.onclick=()=>{S.produto=p.id;S.diffs=[];S.receita='';renderProdutos();renderDiffs();renderReceitaSuggs();document.getElementById('s3sum').textContent=p.label;document.getElementById('step3').classList.add('done');openStep('step4');checkReady();};
+    d.className='prod-card';
+    d.innerHTML=`<div class="dot" style="background:${p.color}"></div>${p.label}`;
+    tap(d,()=>{
+      S.produto=p.id;S.diffs=[];
+      document.querySelectorAll('.prod-card').forEach(c=>c.classList.remove('active'));
+      d.classList.add('active');
+      done('step3','s3s',p.label);
+      renderDiffs();renderReceitaSuggs();
+      openStep('step4');
+      checkReady();
+    });
     el.appendChild(d);
   });
 }
 
+// ─── DIFERENCIAIS ─────────────────────────
 function renderDiffs(){
   const el=document.getElementById('diffList');
   el.innerHTML='';
-  DIFERENCIAIS.forEach(d=>{
+  DIFFS.forEach(d=>{
     const compat=!S.produto||d.linhas.includes(S.produto);
     const sel=S.diffs.includes(d.id);
     const dis=!compat||(!sel&&S.diffs.length>=3);
     const div=document.createElement('div');
     div.className='diff-item'+(sel?' active':'')+(dis?' off':'');
-    div.innerHTML=`<div class="d-check">${sel?'✓':''}</div>${d.label}`;
-    if(!dis) div.onclick=()=>{
+    div.innerHTML=`<div class="d-chk">${sel?'✓':''}</div>${d.label}`;
+    if(!dis) tap(div,()=>{
       if(sel) S.diffs=S.diffs.filter(x=>x!==d.id);
       else if(S.diffs.length<3) S.diffs.push(d.id);
       renderDiffs();
-      document.getElementById('s4sum').textContent=S.diffs.length?S.diffs.length+' selecionados':'—';
-      if(S.diffs.length>0){document.getElementById('step4').classList.add('done');openStep('step5');}
+      if(S.diffs.length>0){done('step4','s4s',S.diffs.length+' sel.');openStep('step5');}
       checkReady();
-    };
+    });
     el.appendChild(div);
   });
-  document.getElementById('diffNote').textContent=`${S.diffs.length} / 3 selecionados`;
+  document.getElementById('diffNote').textContent=S.diffs.length+' / 3 selecionados';
 }
 
-function selectAssunto(v){
+// ─── ASSUNTO ──────────────────────────────
+function pickAssunto(v){
   S.assunto=v;S.receita='';S.sazonal='';
-  ['receitas','sazonal','teste','educacional'].forEach(a=>{
-    document.getElementById('ass-'+a).className='assunto-card'+(v===a?' active':'');
-  });
+  ['receitas','sazonal','teste','educacional'].forEach(a=>document.getElementById('ass-'+a).classList.toggle('active',a===v));
   document.getElementById('receitaBlock').style.display=v==='receitas'?'block':'none';
   document.getElementById('sazonalBlock').style.display=v==='sazonal'?'block':'none';
-  const labels={receitas:'Receitas',sazonal:'Sazonal',teste:'Teste da panela',educacional:'Educacional'};
-  document.getElementById('s5sum').textContent=labels[v];
-  document.getElementById('step5').classList.add('done');
+  document.getElementById('receitaInput').value='';
+  const L={receitas:'Receitas',sazonal:'Sazonal',teste:'Teste da panela',educacional:'Educacional'};
+  done('step5','s5s',L[v]);
   openStep('step6');
+  renderReceitaSuggs();
   checkReady();
 }
 
 function renderReceitaSuggs(){
-  const el=document.getElementById('receitaSuggs');
-  el.innerHTML='';
+  const el=document.getElementById('receitaSuggs');el.innerHTML='';
   const lista=S.produto?(RECEITAS[S.produto]||[]):[];
   lista.forEach(r=>{
     const t=document.createElement('span');
     t.className='r-tag'+(S.receita===r?' active':'');
     t.textContent=r;
-    t.onclick=()=>{
+    tap(t,()=>{
       S.receita=S.receita===r?'':r;
       document.getElementById('receitaInput').value=S.receita;
       renderReceitaSuggs();checkReady();
-    };
+    });
     el.appendChild(t);
   });
 }
 
-function onReceitaType(){
-  S.receita=document.getElementById('receitaInput').value.trim();
-  renderReceitaSuggs();checkReady();
-}
-
-function selectSazonal(v){
+function pickSazonal(v,el){
   S.sazonal=v;
-  document.getElementById('sazonalInput').value=v;
-  ['maes','pais','natal'].forEach(k=>{
-    const map={'maes':'Dia das Mães','pais':'Dia dos Pais','natal':'Natal'};
-    const el=document.getElementById('saz-'+k);
-    if(el) el.className='opt'+(map[k]===v?' active':'');
-  });
+  document.querySelectorAll('#sazonalBlock .opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
   checkReady();
 }
 
-function onSazonalType(){
-  S.sazonal=document.getElementById('sazonalInput').value.trim();
-  ['maes','pais','natal'].forEach(k=>{
-    const el=document.getElementById('saz-'+k);
-    if(el) el.className='opt';
-  });
+// ─── CTA ──────────────────────────────────
+function pickCTA(v,lbl){
+  S.cta=v;S.ctaLabel=lbl;
+  ['link','salva','clique'].forEach(c=>document.getElementById('cta-'+c).classList.toggle('active',c===v));
+  done('step6','s6s',lbl);
   checkReady();
 }
 
-function onRefInput(){
-  S.referencia=document.getElementById('refInput').value.trim();
-  document.getElementById('sRefsum').textContent=S.referencia?'✓ adicionada':'—';
-}
-
-function selectCTA(v){
-  ['link','salva','clique'].forEach(c=>{
-    document.getElementById('cta-'+c).className='cta-card'+(v===c?' active':'');
-  });
-  const labels={link:'Comenta "panela"',salva:'Salva/Marca/Envia',clique:'Clique e peça'};
-  document.getElementById('s6sum').textContent=labels[v];
-  document.getElementById('step6').classList.add('done');
-  checkReady();
-}
-
+// ─── CHECK READY ──────────────────────────
 function checkReady(){
-  const assuntoOk = S.assunto && (S.assunto!=='receitas' || S.receita);
-  const ok = S.formato && S.persona && S.produto && S.diffs.length>0 && assuntoOk && S.cta;
-  document.getElementById('btnGen').disabled=!ok;
+  const assOk=S.assunto&&(S.assunto!=='receitas'||S.receita)&&(S.assunto!=='sazonal'||S.sazonal);
+  document.getElementById('btnGen').disabled=!(S.formato&&S.persona&&S.produto&&S.diffs.length>0&&assOk&&S.cta);
 }
 
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
-renderPersonas(); renderProdutos(); renderDiffs(); renderReceitaSuggs();
-
-// ══════════════════════════════════════════════
-// GENERATE
-// ══════════════════════════════════════════════
+// ─── GENERATE ─────────────────────────────
 async function generate(){
-  const persona  = PERSONAS.find(p=>p.id===S.persona);
-  const produto  = PRODUTOS.find(p=>p.id===S.produto);
-  const diffs    = DIFERENCIAIS.filter(d=>S.diffs.includes(d.id));
-  const is60     = S.formato==='60';
-
-  // Estruturas por assunto e formato
-  const estruturas = {
-    receitas: is60
-      ? `6 cenas, 60 segundos:
-- Cena 1 (0–8s): Hook da receita — desperta curiosidade pelo prato. IMPACTO IMEDIATO nos primeiros 2 segundos. Sem mostrar o produto. MÁX 2 frases.
-- Cena 2 (8–20s): Preparo — ingredientes, processo. Fala sobre a receita, não o produto. MÁX 3 frases.
-- Cena 3 (20–35s): Panela em ação — produto aparece naturalmente. Integre 1–2 diferenciais de forma orgânica. MÁX 3 frases.
-- Cena 4 (35–48s): Resultado — o prato pronto. Reação real. Apelo visual. MÁX 2 frases.
-- Cena 5 (48–55s): Diferencial reforçado — benefício contextualizado na experiência da receita. MÁX 2 frases.
-- Cena 6 (55–60s): CTA`
-      : `5 cenas, 30 segundos:
-- Cena 1 (0–5s): Hook da receita — desperta curiosidade. IMPACTO IMEDIATO. MÁX 1 frase forte.
-- Cena 2 (5–12s): Preparo rápido — o essencial do processo. MÁX 2 frases.
-- Cena 3 (12–22s): Panela em ação com diferencial integrado. MÁX 2 frases.
-- Cena 4 (22–27s): Resultado — reação e apelo visual. MÁX 1 frase.
-- Cena 5 (27–30s): CTA`,
-
-    teste: is60
-      ? `6 cenas, 60 segundos:
-CONTEXTO: este vídeo coloca a panela à prova com ingredientes inusitados ou os campeões de grudar (queijo derretido, leite, ovo, mel, pão de queijo, tapioca...). O tom é de desafio real — "vamos ver se aguenta".
-- Cena 1 (0–8s): Hook do desafio — anuncia o teste com algo que todo mundo sabe que gruda horrores. IMPACTO IMEDIATO. MÁX 2 frases.
-- Cena 2 (8–18s): Preparação do teste — mostra o ingrediente, cria expectativa, explica o desafio. MÁX 2 frases.
-- Cena 3 (18–35s): O teste acontece — o ingrediente na panela, o momento de tensão, integre diferenciais naturalmente. MÁX 3 frases.
-- Cena 4 (35–48s): Resultado / prova — o que ficou (ou NÃO ficou) na panela. Reação genuína de espanto ou satisfação. MÁX 2 frases.
-- Cena 5 (48–55s): Reforço — contextualiza por que isso importa no dia a dia de quem está assistindo. MÁX 2 frases.
-- Cena 6 (55–60s): CTA`
-      : `5 cenas, 30 segundos:
-CONTEXTO: teste com ingrediente campeão de grudar. Tom de desafio real.
-- Cena 1 (0–5s): Hook do desafio — anuncia o teste. IMPACTO IMEDIATO. MÁX 1 frase forte.
-- Cena 2 (5–12s): Preparação — mostra o ingrediente, cria expectativa. MÁX 1 frase.
-- Cena 3 (12–22s): O teste + resultado surpreendente. Integre diferencial. MÁX 2 frases.
-- Cena 4 (22–27s): Reação genuína — o que não ficou na panela. MÁX 1 frase.
-- Cena 5 (27–30s): CTA`,
-
-    educacional: is60
-      ? `6 cenas, 60 segundos:
-CONTEXTO: conteúdo "você sabia?" — ensina como usar melhor a panela, dicas de conservação, o que não fazer (lavar quente, usar metal, guardar empilhada sem proteção, colocar no microondas...), dicas de limpeza. Tom de dica útil de quem sabe, não de manual de instrução.
-- Cena 1 (0–8s): Hook "você sabia?" — uma informação que a maioria não sabe e que muda tudo. PARA O SCROLL imediatamente. MÁX 2 frases.
-- Cena 2 (8–20s): O problema ou o erro comum — o que as pessoas fazem de errado sem saber. MÁX 3 frases.
-- Cena 3 (20–35s): A dica certa — como usar, lavar, guardar ou cuidar do jeito correto. Integre diferenciais. MÁX 3 frases.
-- Cena 4 (35–48s): O resultado / diferença — o que muda quando você faz certo. MÁX 2 frases.
-- Cena 5 (48–55s): Dica bônus ou reforço prático — mais um detalhe que faz diferença. MÁX 2 frases.
-- Cena 6 (55–60s): CTA`
-      : `5 cenas, 30 segundos:
-CONTEXTO: dica "você sabia?" — erro comum ou cuidado que a maioria ignora.
-- Cena 1 (0–5s): Hook "você sabia?" — informação que a maioria desconhece. PARA O SCROLL. MÁX 1 frase.
-- Cena 2 (5–12s): O erro ou o problema comum. MÁX 2 frases.
-- Cena 3 (12–22s): A dica certa + diferencial integrado. MÁX 2 frases.
-- Cena 4 (22–27s): O que muda quando você faz certo. MÁX 1 frase.
-- Cena 5 (27–30s): CTA`,
-
-    sazonal: is60
-      ? `6 cenas, 60 segundos:
-- Cena 1 (0–8s): Hook do momento sazonal — conecta a data/estação com algo que o espectador sente agora. IMPACTO nos primeiros 2 segundos. MÁX 2 frases.
-- Cena 2 (8–20s): Receita ou contexto ligado ao momento. MÁX 3 frases.
-- Cena 3 (20–35s): Panela em ação — produto aparece naturalmente. Integre diferenciais. MÁX 3 frases.
-- Cena 4 (35–48s): Resultado — o prato ou o momento final. Emoção ligada à data. MÁX 2 frases.
-- Cena 5 (48–55s): Conexão afetiva — por que este momento merece essa panela. MÁX 2 frases.
-- Cena 6 (55–60s): CTA`
-      : `5 cenas, 30 segundos:
-- Cena 1 (0–5s): Hook sazonal. IMPACTO IMEDIATO. MÁX 1 frase forte.
-- Cena 2 (5–12s): Contexto da data/momento com receita. MÁX 2 frases.
-- Cena 3 (12–22s): Panela em ação com diferencial. MÁX 2 frases.
-- Cena 4 (22–27s): Resultado com emoção sazonal. MÁX 1 frase.
-- Cena 5 (27–30s): CTA`,
-  };
-
-  const assuntoExtra = S.assunto==='receitas' ? `\nRECEITA DO VÍDEO: ${S.receita}` :
-                       S.assunto==='sazonal' && S.sazonal ? `\nCONTEXTO SAZONAL: ${S.sazonal}` : '';
-
-  const referenciaBlock = S.referencia
-    ? '\n\nREFERÊNCIA DE ESTILO (vídeo que performou bem):\n"""\n' + S.referencia + '\n"""\nAnalise esta referência e capture: o tipo de hook usado, o ritmo das cenas, onde o produto aparece, o tom emocional e a estrutura do CTA. Replique o RACIONAL e o ESTILO — não o conteúdo literal. Adapte tudo para a persona, produto e diferenciais definidos acima.'
-    : '';
-
-  const totalCenas = is60 ? 6 : 5;
-
-  const prompt = `Você é especialista em roteiros de vídeo curto (Reels/TikTok) para campanhas no Brasil.
-Cria roteiros orgânicos, como influenciador real — nunca publicitário, nunca forçado.
-
-PRODUTO: ${produto.label}
-${produto.desc}
-
-PERSONA: ${persona.name} | ${persona.tag}
-Perfil: ${persona.desc}
-Voz: ${persona.voice}
-${assuntoExtra}
-
-DIFERENCIAIS A INTEGRAR (use TODOS naturalmente — veja como traduzir cada um para linguagem real):
-${diffs.map((d,i)=>`${i+1}. ${d.label} → ${d.fala}`).join('\n')}
-
-REGRA DE LINGUAGEM DOS DIFERENCIAIS: NUNCA use linguagem técnica ou de embalagem. Traduza sempre para como o consumidor fala no dia a dia. Exemplos proibidos: "antiaderente certificado Nível A pelo Inmetro", "livre de PFOA". Use as sugestões de fala acima como referência — adapte ao contexto da cena.
-
-ASSUNTO: ${S.assunto.toUpperCase()}
-FORMATO: ${is60?'1 minuto (60s)':'30 segundos'}
-
-ESTRUTURA OBRIGATÓRIA:
-${estruturas[S.assunto]}
-
-INSTRUÇÃO DO CTA (última cena): ${CTA_TEXTS[S.cta]}
-
-REGRAS DE HOOK — A ABERTURA É CRÍTICA:
-A primeira frase decide se o vídeo vai ser assistido ou não. Ela precisa:
-- Parar o scroll imediatamente
-- Gerar curiosidade, identificação ou choque leve
-- NÃO começar com "Olá", "Oi", apresentação da persona ou nome do produto
-- Pode ser uma pergunta, uma afirmação provocadora, uma situação de dor reconhecível, uma promessa de resultado, ou "POV:" (para Isabela)
-- O estilo varia conforme a persona e o assunto — o Claude escolhe o mais eficaz
-
-REGRAS DE VOZ E EXPRESSÕES:
-- Use as expressões e reações típicas da persona conforme descrito acima em "Voz"
-- Expressões de reação (espanto, alegria, surpresa) são bem-vindas quando genuínas — mas apenas se soarem naturais para esta persona
-- Cada persona tem um vocabulário específico — nunca misture o jeito de falar de uma com outra
-- Expressões como "nossa", "uau", "wow", "caramba", "que isso", "mentira" devem aparecer apenas se forem da persona
-
-CONTEXTO SAZONAL BRASILEIRO (importante):
-- Natal no Brasil é no verão: calor, praia, família reunida, churrasco, mesa farta ao ar livre — NUNCA cite frio, neve ou lareira
-- Dia das Mães: emoção, gratidão, presente especial, cozinhar para ela ou presentear
-- Dia dos Pais: orgulho, homenagem, pai na cozinha ou a família cozinhando para ele
-
-REGRAS GERAIS:
-- Fala CURTA. Respeite os limites de frases por cena.
-- Ao se referir ao produto: use APENAS "Panela Polishop", "essa panela" ou "Panela da Polishop". NUNCA cite modelo (Home, Ultra, Clássica, Day by Day, Sauté, etc.).
-- Voz 100% da persona — vocabulário, ritmo, emoção desta pessoa específica.
-- Todos os diferenciais devem aparecer integrados na narrativa — nunca em lista.
-- Fala coloquial brasileira. Sem exageros. Sem exclamações em excesso.
-${referenciaBlock}
-
-DESCRITIVO SEEDANCE: para cada cena, gere um descritivo visual detalhado (ambiente, enquadramento, ação visível, iluminação, tom visual, movimento de câmera) para geração de vídeo por IA. Específico e cinematográfico. Em português.
-
-RESPONDA APENAS COM JSON VÁLIDO, sem markdown, sem \`\`\`:
-{
-  "cenas": [
-    ${Array.from({length:totalCenas},(_,i)=>`{ "numero": ${i+1}, "titulo": "...", "timing": "...", "fala": "...", "seedance": "..." }`).join(',\n    ')}
-  ],
-  "notas_de_producao": "Ritmo de edição, som ambiente, música sugerida, tom geral."
-}`;
-
-  // UI
   document.getElementById('emptyState').style.display='none';
   document.getElementById('outputBox').className='output';
-  document.getElementById('errorBox').className='error-box';
-  document.getElementById('loadingBox').className='loading-box on';
+  document.getElementById('loadingBox').className='loading on';
+  await new Promise(r=>setTimeout(r,600));
 
-  const msgs=['Aquecendo a frigideira...','Calibrando a voz da persona...','Montando as cenas...','Ajustando o hook de abertura...','Verificando os diferenciais...'];
-  let mi=0;
-  const ticker=setInterval(()=>{document.getElementById('loadingMsg').textContent=msgs[mi++%msgs.length];},1800);
+  const chave=S.persona+'_'+S.produto+'_'+S.assunto+'_'+S.formato+'s';
+  let rot=ROTEIROS.find(r=>r.key===chave);
+  const isFb=!rot;
+  if(!rot) rot=ROTEIROS[Math.floor(Math.random()*ROTEIROS.length)];
 
-  try{
-    const res=await fetch('/api/generate',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({prompt, password: window._appPassword})
-    });
-    const data=await res.json();
-    clearInterval(ticker);
-    document.getElementById('loadingBox').className='loading-box';
-    if(!res.ok||data.error) throw new Error(data.error?.message||'Erro na API');
-    const raw=data.content.map(b=>b.text||'').join('');
-    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    renderOutput(persona,produto,diffs,parsed);
-  }catch(e){
-    clearInterval(ticker);
-    document.getElementById('loadingBox').className='loading-box';
-    const eb=document.getElementById('errorBox');
-    eb.textContent=`Erro: ${e.message}. Tente novamente.`;
-    eb.className='error-box on';
-    document.getElementById('emptyState').style.display='flex';
-  }
-}
+  document.getElementById('loadingBox').className='loading';
 
-// ══════════════════════════════════════════════
-// RENDER OUTPUT
-// ══════════════════════════════════════════════
-const ASSUNTO_COLORS={receitas:'#1A6B4A',sazonal:'#B56A00',teste:'#2255A4',educacional:'#7B4B94'};
-const ASSUNTO_LABELS={receitas:'🍳 Receitas',sazonal:'📅 Sazonal',teste:'🔬 Teste da panela',educacional:'💡 Educacional'};
-const CTA_LABELS={link:'💬 Comenta "panela"',salva:'❤️ Salva/Marca/Envia',clique:'🛒 Clique e peça'};
+  // Sempre usa seleção do usuário para nome/produto/diffs
+  const persona=PERSONAS.find(p=>p.id===S.persona);
+  const produto=PRODUTOS.find(p=>p.id===S.produto);
+  const diffs=DIFFS.filter(d=>S.diffs.includes(d.id));
+  const ac=ACOLORS[S.assunto];
 
-function renderOutput(persona,produto,diffs,data){
-  const ac=ASSUNTO_COLORS[S.assunto];
+  // Badge
   const badge=document.getElementById('outBadge');
-  badge.textContent=`${ASSUNTO_LABELS[S.assunto]} · ${S.formato==='60'?'60s':'30s'} · ${CTA_LABELS[S.cta]}`;
-  badge.style.cssText=`background:${ac}18;color:${ac};border-color:${ac}44;`;
+  badge.textContent=ALABELS[S.assunto]+' · '+(S.formato==='60'?'60s':'30s')+' · '+S.ctaLabel;
+  badge.style.cssText=`background:${ac}22;color:${ac};border-color:${ac}66;`;
 
-  document.getElementById('outTitle').textContent=`Roteiro — ${persona.name}`;
+  document.getElementById('outTitle').textContent='Roteiro — '+persona.name;
 
   const meta=document.getElementById('outMeta');
-  meta.innerHTML=`
-    <span class="m-tag">${produto.label}</span>
-    ${diffs.map(d=>`<span class="m-tag">${d.label}</span>`).join('')}
-    ${S.receita?`<span class="m-receita">🍽️ ${S.receita}</span>`:''}
-    ${S.sazonal?`<span class="m-receita">📅 ${S.sazonal}</span>`:''}
-  `;
+  meta.innerHTML=`<span class="m-tag">${produto.label}</span>`
+    +diffs.map(d=>`<span class="m-tag">${d.label}</span>`).join('')
+    +(rot.extra?.receita?`<span class="m-extra">🍽️ ${rot.extra.receita}</span>`:'')
+    +(rot.extra?.sazonal?`<span class="m-extra">📅 ${rot.extra.sazonal}</span>`:'')
+    +(S.sazonal&&!rot.extra?.sazonal?`<span class="m-extra">📅 ${S.sazonal}</span>`:'');
 
   const list=document.getElementById('scenesList');
   list.innerHTML='';
-  data.cenas.forEach(c=>{
+
+  if(isFb){
+    const w=document.createElement('div');
+    w.className='warn';
+    w.textContent='✦ Combinação sem exemplo pré-gerado — exibindo roteiro similar. Na versão completa o Claude gera qualquer combinação em tempo real.';
+    list.appendChild(w);
+  }
+
+  rot.cenas.forEach(c=>{
     const card=document.createElement('div');
-    card.className='scene-card';
+    card.className='s-card';
     card.innerHTML=`
-      <div class="scene-hd" style="background:${S.assunto==='receitas'?'#1A4A34':S.assunto==='sazonal'?'#5A3800':S.assunto==='teste'?'#1A2A5A':'#3A1A5A'}">
-        <div class="scene-num">${c.numero}</div>
+      <div class="s-head" style="background:${ac}">
+        <div class="s-num">${c.numero}</div>
         ${esc(c.titulo)}
-        <span class="scene-time">${esc(c.timing)}</span>
+        <span class="s-time">${esc(c.timing)}</span>
       </div>
-      <div class="scene-bd">
-        <div class="fala-label">Fala</div>
+      <div class="s-body">
+        <div class="fala-lbl">Fala</div>
         ${esc(c.fala)}
-        ${c.seedance?`<div class="seedance-block"><div class="seedance-label">🎬 Seedance — descritivo visual</div><div class="seedance-text">${esc(c.seedance)}</div></div>`:''}
+        ${c.seedance?`<div class="seed-block"><div class="seed-lbl">🎬 Seedance — descritivo visual</div><div class="seed-txt">${esc(c.seedance)}</div></div>`:''}
       </div>`;
     list.appendChild(card);
   });
 
-  if(data.notas_de_producao){
-    const nb=document.getElementById('notesBox');
-    nb.innerHTML=`<strong>📽️ Notas de produção:</strong> ${esc(data.notas_de_producao)}`;
-    nb.style.display='block';
-  }
+  const nb=document.getElementById('notesBox');
+  if(rot.notas){nb.innerHTML=`<strong>📽️ Notas de produção:</strong> ${esc(rot.notas)}`;nb.style.display='block';}
+  else{nb.style.display='none';}
 
   document.getElementById('outputBox').className='output on';
-  window._last={data,persona,produto,diffs,S:JSON.parse(JSON.stringify(S))};
+  lastResult={rot,persona,produto,diffs};
+
+  // Mobile: scroll para o resultado
+  if(window.innerWidth<768){
+    setTimeout(()=>document.getElementById('outputBox').scrollIntoView({behavior:'smooth',block:'start'}),150);
+  }
 }
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
 
-// ══════════════════════════════════════════════
-// EXPORT JSON
-// ══════════════════════════════════════════════
-function exportJSON(){
-  if(!window._last) return;
-  const {data,persona,produto,diffs,S:ls}=window._last;
-
-  const timestamp = new Date().toISOString();
-  const slug = `${persona.id}_${ls.produto}_${ls.assunto}_${ls.formato}s`
-    .replace(/[^a-z0-9_]/gi,'_').toLowerCase();
-
-  const json = {
-    metadados: {
-      gerado_em: timestamp,
-      ferramenta: 'Script Factory · Panelas Polishop',
-      formato: ls.formato === '60' ? '60s · 6 cenas' : '30s · 5 cenas',
-      assunto: ls.assunto,
-      cta: ls.cta,
-      receita: ls.receita || null,
-      contexto_sazonal: ls.sazonal || null,
-      referencia_de_estilo: ls.referencia || null,
-    },
-    persona: {
-      id: persona.id,
-      nome: persona.name,
-      arquetipo: persona.tag,
-      demo: persona.demo,
-    },
-    produto: {
-      id: produto.id,
-      nome: produto.label,
-    },
-    diferenciais: diffs.map(d => ({
-      id: d.id,
-      label: d.label,
-      linguagem_consumidor: d.fala,
-    })),
-    roteiro: {
-      cenas: data.cenas.map(c => ({
-        numero: c.numero,
-        titulo: c.titulo,
-        timing: c.timing,
-        fala: c.fala,
-        seedance: c.seedance || null,
-      })),
-      notas_de_producao: data.notas_de_producao || null,
-    },
-  };
-
-  const blob = new Blob([JSON.stringify(json, null, 2)], {type: 'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `roteiro_${slug}_${timestamp.slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+// ─── COPY ─────────────────────────────────
 function copyScript(){
-  if(!window._last) return;
-  const {data,persona,produto,diffs,S:ls}=window._last;
+  if(!lastResult)return;
+  const{rot,persona,produto,diffs}=lastResult;
   let t=`ROTEIRO — ${persona.name}\n`;
-  t+=`Formato: ${ls.formato==='60'?'60s':'30s'} · Assunto: ${ls.assunto}${ls.receita?' · '+ls.receita:''}${ls.sazonal?' · '+ls.sazonal:''}\n`;
-  t+=`Produto: ${produto.label} · CTA: ${ls.cta}\n`;
-  t+=`Diferenciais: ${diffs.map(d=>d.label).join(' · ')}\n`;
-  t+='─'.repeat(52)+'\n\n';
-  data.cenas.forEach(c=>{
-    t+=`[CENA ${c.numero} · ${c.titulo} · ${c.timing}]\n`;
-    t+=`FALA: ${c.fala}\n`;
+  t+=`Formato: ${S.formato==='60'?'60s':'30s'} · Assunto: ${S.assunto}`;
+  if(rot.extra?.receita) t+=` · ${rot.extra.receita}`;
+  if(S.sazonal) t+=` · ${S.sazonal}`;
+  t+=`\nProduto: ${produto.label}\nDiferenciais: ${diffs.map(d=>d.label).join(' · ')}\n`;
+  t+='─'.repeat(48)+'\n\n';
+  rot.cenas.forEach(c=>{
+    t+=`[CENA ${c.numero} · ${c.titulo} · ${c.timing}]\nFALA: ${c.fala}\n`;
     if(c.seedance) t+=`SEEDANCE: ${c.seedance}\n`;
     t+='\n';
   });
-  if(data.notas_de_producao) t+=`📽️ NOTAS DE PRODUÇÃO\n${data.notas_de_producao}\n`;
+  if(rot.notas) t+=`📽️ NOTAS\n${rot.notas}\n`;
   navigator.clipboard.writeText(t).then(()=>{
     const b=document.querySelector('.btn-copy');
-    b.textContent='✓ Copiado!';
-    setTimeout(()=>b.textContent='Copiar roteiro',2000);
+    b.textContent='✓ Copiado!';setTimeout(()=>b.textContent='Copiar roteiro',2000);
   });
 }
+
+// ─── EXPORT JSON ──────────────────────────
+function exportJSON(){
+  if(!lastResult)return;
+  const{rot,persona,produto,diffs}=lastResult;
+  const json={
+    metadados:{gerado_em:new Date().toISOString(),ferramenta:'Script Factory · Panelas Polishop — Demo',
+      formato:S.formato==='60'?'60s':'30s',assunto:S.assunto,cta:S.cta,
+      receita:rot.extra?.receita||null,sazonal:S.sazonal||null},
+    persona:{id:persona.id,nome:persona.name,arquetipo:persona.tag},
+    produto:{id:produto.id,nome:produto.label},
+    diferenciais:diffs.map(d=>({id:d.id,label:d.label})),
+    roteiro:{cenas:rot.cenas.map(c=>({numero:c.numero,titulo:c.titulo,timing:c.timing,fala:c.fala,seedance:c.seedance||null})),notas:rot.notas||null},
+  };
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(json,null,2)],{type:'application/json'}));
+  a.download=`roteiro_${S.persona}_${S.produto}_${S.assunto}_${S.formato}s_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+// ─── INIT ─────────────────────────────────
+renderPersonas();renderProdutos();renderDiffs();
+
+// Wires todos os elementos estáticos (iOS-safe)
+function wire(id, fn){ const el=document.getElementById(id); if(el) tap(el,fn); }
+
+// Accordion steps
+['step1','step2','step3','step4','step5','step6'].forEach(id=>{
+  const head=document.querySelector('#'+id+' .step-head');
+  if(head) tap(head,()=>tog(id));
+});
+
+// Formato
+wire('f60',()=>pickFormato('60',document.getElementById('f60'),'1 minuto'));
+wire('f30',()=>pickFormato('30',document.getElementById('f30'),'30 segundos'));
+
+// Assunto
+wire('ass-receitas',()=>pickAssunto('receitas'));
+wire('ass-sazonal', ()=>pickAssunto('sazonal'));
+wire('ass-teste',   ()=>pickAssunto('teste'));
+wire('ass-educacional',()=>pickAssunto('educacional'));
+
+// Sazonal
+wire('saz-maes', ()=>pickSazonal('Dia das Mães', document.getElementById('saz-maes')));
+wire('saz-pais', ()=>pickSazonal('Dia dos Pais', document.getElementById('saz-pais')));
+wire('saz-natal',()=>pickSazonal('Natal',        document.getElementById('saz-natal')));
+
+// CTA
+wire('cta-link',  ()=>pickCTA('link',  'Comenta panela'));
+wire('cta-salva', ()=>pickCTA('salva', 'Salva/Marca/Envia'));
+wire('cta-clique',()=>pickCTA('clique','Clique e peça'));
+
+// Botão gerar
+wire('btnGen', generate);
 </script>
 </body>
 </html>
